@@ -1,6 +1,5 @@
-import shell from 'shelljs'
+import shell from "shelljs";
 
+const res = shell.exec("git diff --cached --name-only");
 
-const res = shell.exec('git diff --cached --name-only')
-
-console.log(res);
+console.log(res.stdout.split("\n").filter((i) => i));
