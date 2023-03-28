@@ -4,5 +4,6 @@
 # yarn commitlint --edit "$1"
 
 # node prettier-changelog.js
+# echo $1
 
 node .husky/scripts/test-change.js $1

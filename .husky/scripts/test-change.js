@@ -1,31 +1,67 @@
 import shell from "shelljs";
 import fs from "fs";
 import path from "path";
-import { getDiff, diffFilterMap } from "./gitDiff.js";
-import { md2html } from "./mdHtmlExchange.js";
-import { getDocument, getHashListFromMd } from "./dom.js";
+import ejs from "ejs";
+import prettier from "prettier";
+import { getDiff } from "./gitDiff.js";
+import { generateNewCommitMd, getHashListFromMd } from "./dom.js";
+import { fileHashEjsTpl } from "./ejs.js";
+import { generateCodeFrame } from "vue/compiler-sfc";
+const changeLogPath = path.resolve(process.cwd(), "CHANGELOG.md");
+const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
+
+
 
 shell.exec(
-  `npx prettier --write --ignore-unknown   ${path.resolve(
+  `npx prettier --write --ignore-unknown ${path.resolve(
     process.cwd(),
     "CHANGELOG.md"
   )}`
 );
 
-const diffMap = {};
-const diffList = [];
-Object.keys(diffFilterMap).forEach((key) => {
-  const list = getDiff(key);
-  diffMap[key] = list;
-  diffList.push(...list);
+const diffList = getDiff();
+
+const existHashList = getHashListFromMd(currentCommitLogPath);
+
+const noExist = diffList.some((item) => {
+  // CHANGELOG.md 不做校验
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    return false;
+  }
+  const newHashStr = ejs.render(fileHashEjsTpl, item);
+
+  const hasIndexNumber = Array.from(existHashList).findIndex(
+    (existI) => existI.hash === newHashStr
+  );
+
+  if (hasIndexNumber >= 0) {
+    const goal = existHashList[hasIndexNumber].goal.innerHTML.trim();
+    const goalReg = /^改动目的：.+/;
+    if (goalReg.test(goal)) {
+      // 有的就跳过进入下一个
+      return false;
+    }
+  }
+
+  //   第一个不存在就返回
+  return true;
 });
-// console.log(`🚀  diffMap:`, diffMap);
+console.log(11111,fs.readFileSync(path.resolve(process.cwd(),'.git/COMMIT_EDITMSG'),'utf8'));
+if (noExist) {
+  const mdStr = generateNewCommitMd(diffList);
+  // TODO: 保留已有不变的goal
+  fs.writeFileSync(currentCommitLogPath, mdStr);
+  console.log(
+    `\n请在文件 ${currentCommitLogPath} 中，将文件对应的改动目的补充完整，再进行提交\n`
+  );
+  process.exit(1);
+} else {
+  const oldLog = fs.readFileSync(changeLogPath, "utf8");
+  const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
+  fs.writeFileSync(
+    changeLogPath,
+    prettier.format(`${currentLog}\n${oldLog}`, { parser: "markdown" })
+  );
 
-// diffMap.some({diff}=>{
-
-// })
-
-// console.log(1111, getHashListFromMd());
-
-process.exit(1);
-shell.exec("git add .");
+  shell.exec("git add .");
+}

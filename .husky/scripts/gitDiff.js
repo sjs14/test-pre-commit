@@ -1,69 +1,18 @@
 import shell from "shelljs";
-import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 
-export const diffFilterMap = {
-  add: {
-    label: "新增",
-    value: "A",
-  },
-  edit: {
-    label: "编辑",
-    value: "M",
-  },
-  delete: {
-    label: "删除",
-    value: "D",
-  },
-};
 /**
- *
- * @param {*} type 筛选条件，只能是add | edit | delete
+ * 获取diff文件信息
  * @returns
  */
-export const getDiff = (type) => {
-  const diffList = [];
+export const getDiff = () => {
+  let gitDiffComd = "git diff --cached --full-index";
 
-  const filterType =
-    type && diffFilterMap[type] ? diffFilterMap[type].value : undefined;
-
-  // 组装git diff命令
-  let gitDiffComd = "git diff --cached";
-  if (filterType !== "D") {
-    gitDiffComd += " --name-only";
-  }
-  if (filterType) {
-    gitDiffComd += ` --diff-filter=${filterType}`;
-  }
   const res = shell.exec(gitDiffComd);
-  if (filterType === "D") {
-    console.log(`🚀  res:`, res.stdout);
-  }
 
-  if (filterType === "D") {
-    // getFileHash()
-    console.log(`🚀  res:\n\n\n\n`, res.stdout, "\n\n\n\n");
-  } else {
-    const diffFiles = res.stdout.split("\n").filter((i) => i);
-    diffFiles.forEach((file) => {
-      const targetPath = path.join(process.cwd(), file);
+  const diffList = getFileDiffInfo(res.stdout);
 
-      if (fs.existsSync(targetPath)) {
-        const md5 = getFileHash(targetPath);
-        console.log(`🚀  md5:`, md5);
-        diffList.push({
-          md5,
-          file,
-        });
-      } else {
-        diffList.push({
-          md5: "删除文件",
-          file,
-        });
-      }
-    });
-  }
   return diffList;
 };
 
@@ -81,4 +30,44 @@ export const getFileHash = (fileOrCode, opt = {}) => {
   const md5 = hash.digest("hex");
 
   return md5;
+};
+
+export const getFileDiffInfo = (diffLog) => {
+  if (!diffLog) {
+    return [];
+  }
+  const list = [];
+  const fileReg = /^diff --git [a-z]\/([^\s]*)/gm,
+    indexReg = /^index ([^\.]*..[^\s]*)/gm;
+  let file;
+  while ((file = fileReg.exec(diffLog))) {
+    const filePath = file[1];
+    const index = indexReg.exec(diffLog)?.[1];
+    if (filePath && index) {
+      list.push({
+        filePath,
+        index,
+        status: getIndexStatus(index),
+      });
+    }
+  }
+  return list;
+};
+
+export const getIndexStatus = (index) => {
+  if (!index) {
+    return undefined;
+  }
+  const allZero = /^0+$/;
+  const [oldIndex, newIndex] = index.split("..");
+
+  if (allZero.test(oldIndex)) {
+    return "add";
+  }
+
+  if (allZero.test(newIndex)) {
+    return "delete";
+  }
+
+  return "update";
 };

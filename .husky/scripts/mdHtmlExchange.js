@@ -18,7 +18,6 @@ export const md2html = (pathOrCode, opt = {}) => {
   if (opt.output) {
     fs.writeFileSync(opt.output, pathOrCode);
   }
-
   return marked(pathOrCode);
 };
 
