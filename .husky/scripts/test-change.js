@@ -66,7 +66,7 @@ if (noExist) {
     ? fs.readFileSync(changeLogPath, "utf8")
     : "";
   const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
-  console.log(`🚀  currentLog:`, prettier.format(currentLog, { parser: "markdown" }))
+  console.log(`🚀  currentLog:`, currentLog)
   
   fs.writeFileSync(
     changeLogPath,
