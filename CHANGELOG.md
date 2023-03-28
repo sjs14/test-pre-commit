@@ -1,4 +1,14 @@
-## commit 时间：2023-03-28 23:51:07### 文件：.husky/commit-msg
+## commit 时间：2023-03-28 23:52:16
+
+### 文件：.husky/scripts/pre-commit.js
+
+#### 文件 hash：4721074..673331d - `update`
+
+改动目的：02
+
+## commit 时间：2023-03-28 23:51:07
+
+### 文件：.husky/commit-msg
 
 #### 文件 hash：01b95a6..3dd87d1 - `update`
 
@@ -64,7 +74,9 @@
 
 改动目的：01
 
-## commit 时间：2023-03-28 23:32:25### 文件：.husky/scripts/test-change.js
+## commit 时间：2023-03-28 23:32:25
+
+### 文件：.husky/scripts/test-change.js
 
 #### 文件 hash：c4a9a1b..62be754 - `update`
 
