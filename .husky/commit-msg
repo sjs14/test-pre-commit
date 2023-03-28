@@ -3,4 +3,4 @@
 
 # yarn commitlint --edit "$1"
 
-echo "$1"
+echo "123123123123123$0"
