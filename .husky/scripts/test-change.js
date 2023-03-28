@@ -66,4 +66,5 @@ if (noExist) {
   );
 
   shell.exec("git add .");
+  shell.rm(currentCommitLogPath)
 }
