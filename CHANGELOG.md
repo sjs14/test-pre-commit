@@ -1,3 +1,9 @@
+### 文件：.husky/scripts/gitDiff.js
+
+#### 文件 hash：6fc7ee4..56e250f - `update`
+
+改动目的：3
+
 ### 文件：.husky/scripts/test-change.js
 
 #### 文件 hash：3f2e19bf3a32a00a8f568e32cbfcbf492983fd63..a9ba7115bcc43d1bd6d2b296d8a21816b0b776fa - `update`

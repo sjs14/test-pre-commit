@@ -7,7 +7,7 @@ import crypto from "crypto";
  * @returns
  */
 export const getDiff = () => {
-  let gitDiffComd = "git diff --cached --full-index";
+  let gitDiffComd = "git diff --cached";
 
   const res = shell.exec(gitDiffComd);
 
