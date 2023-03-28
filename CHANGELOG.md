@@ -1,5 +1,11 @@
 ### 文件：.husky/scripts/test-change.js
 
+#### 文件 hash：3f2e19bf3a32a00a8f568e32cbfcbf492983fd63..a9ba7115bcc43d1bd6d2b296d8a21816b0b776fa - `update`
+
+改动目的：2
+
+### 文件：.husky/scripts/test-change.js
+
 #### 文件 hash：d86bfd8dfb95cc37d06028d27c2b0a7a10cf6ba4..3f2e19bf3a32a00a8f568e32cbfcbf492983fd63 - `update`
 
 改动目的：1
