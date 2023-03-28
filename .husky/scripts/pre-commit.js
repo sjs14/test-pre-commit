@@ -31,7 +31,7 @@ for (let i = 0; i < diffList.length; i++) {
   const item = diffList[i];
   // 强制删除CHANGELOG.md请开启
   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    continue
+    continue;
   }
 
   // 获取文件hash文本
@@ -56,7 +56,7 @@ for (let i = 0; i < diffList.length; i++) {
 
 if (hasNotExist) {
   // 声场最新的changeset.md内容，保留文件index不变且已经填写的改动目的
-  const mdStr = generateNewCommitMd(diffList,currentCommitLogPath);
+  const mdStr = generateNewCommitMd(diffList, currentCommitLogPath);
   fs.writeFileSync(currentCommitLogPath, mdStr);
   // 提醒还有未填写改动目的的文件
   console.log(
@@ -70,18 +70,20 @@ if (hasNotExist) {
   const oldLog = fs.existsSync(changeLogPath)
     ? fs.readFileSync(changeLogPath, "utf8")
     : "";
-  const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
-  console.log(`🚀  currentLog:`, currentLog);
-
-  fs.writeFileSync(
-    changeLogPath,
-    prettier.format(
-      `## commit 时间：${dayjs().format(
-        "YYYY-MM-DD HH:mm:ss"
-      )}\n${currentLog}\n\n\n${oldLog}`,
-      { parser: "markdown" }
-    )
-  );
+  const currentLog = fs.existsSync(currentCommitLogPath)
+    ? fs.readFileSync(currentCommitLogPath, "utf8")
+    : "";
+  if (currentLog) {
+    fs.writeFileSync(
+      changeLogPath,
+      prettier.format(
+        `## commit 时间：${dayjs().format(
+          "YYYY-MM-DD HH:mm:ss"
+        )}\n${currentLog}\n\n\n${oldLog}`,
+        { parser: "markdown" }
+      )
+    );
+  }
 
   shell.exec("git add .");
   shell.rm(currentCommitLogPath);
