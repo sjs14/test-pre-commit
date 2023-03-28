@@ -10,8 +10,6 @@ import { generateCodeFrame } from "vue/compiler-sfc";
 const changeLogPath = path.resolve(process.cwd(), "CHANGELOG.md");
 const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
 
-
-
 shell.exec(
   `npx prettier --write --ignore-unknown ${path.resolve(
     process.cwd(),
@@ -20,11 +18,20 @@ shell.exec(
 );
 
 const diffList = getDiff();
+console.log(`🚀  diffList:`, diffList);
 
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
+// // 先看看有没有改变CHANGELOG.md
+// diffList.some((item) => {
+//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+//     console.log(`文件 ${changeLogPath} 不允许手动更改`);
+//     process.exit(1);
+//   }
+// });
+
 const noExist = diffList.some((item) => {
-  // CHANGELOG.md 不做校验
+  // CHANGELOG.md 改变，不做校验，直接提示用户不允许手动改变CHANGELOG.md
   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
     return false;
   }
@@ -46,7 +53,6 @@ const noExist = diffList.some((item) => {
   //   第一个不存在就返回
   return true;
 });
-console.log(11111,fs.readFileSync(path.resolve(process.cwd(),'.git/COMMIT_EDITMSG'),'utf8'));
 if (noExist) {
   const mdStr = generateNewCommitMd(diffList);
   // TODO: 保留已有不变的goal
@@ -56,7 +62,9 @@ if (noExist) {
   );
   process.exit(1);
 } else {
-  const oldLog = fs.readFileSync(changeLogPath, "utf8");
+  const oldLog = fs.existsSync(changeLogPath)
+    ? fs.readFileSync(changeLogPath, "utf8")
+    : "";
   const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
   fs.writeFileSync(
     changeLogPath,
@@ -64,4 +72,5 @@ if (noExist) {
   );
 
   shell.exec("git add .");
+  // shell.exec(`git commit -m "update CHANGELOG.md"`);
 }
