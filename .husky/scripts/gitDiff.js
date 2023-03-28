@@ -3,9 +3,28 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 
-export const getDiff = () => {
+const diffFilterMap = {
+  add: "A",
+  edit: "M",
+  delete: "D",
+};
+/**
+ * 
+ * @param {*} type 筛选条件，只能是add | edit | delete
+ * @returns 
+ */
+export const getDiff = (type) => {
+
   const diffList = [];
-  const res = shell.exec("git diff --cached --name-only");
+
+  const filterType =
+    type && diffFilterMap[type] ? diffFilterMap[type] : undefined;
+
+  const res = shell.exec(
+    `git diff --cached --name-only${
+      filterType ? ` --diff-filter=${filterType}` : ""
+    }`
+  );
   const diffFiles = res.stdout.split("\n").filter((i) => i);
   diffFiles.forEach((file) => {
     const targetPath = path.join(process.cwd(), file);
@@ -21,7 +40,7 @@ export const getDiff = () => {
       });
     } else {
       diffList.push({
-        md5: '删除文件',
+        md5: "删除文件",
         file,
       });
     }

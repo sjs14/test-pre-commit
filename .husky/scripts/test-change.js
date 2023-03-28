@@ -6,16 +6,17 @@ import { getDiff } from "./gitDiff.js";
 //   "utf8"
 // );
 
-shell.exec(
-  `npx prettier --write --ignore-unknown   ${path.resolve(
-    process.cwd(),
-    "CHANGELOG.md"
-  )}`
-);
+// shell.exec(
+//   `npx prettier --write --ignore-unknown   ${path.resolve(
+//     process.cwd(),
+//     "CHANGELOG.md"
+//   )}`
+// );
 
-const diffList = getDiff()
-console.log(`🚀  diffList:`, diffList)
+// const diffList = getDiff()
+// console.log(`🚀  diffList:`, diffList)
 
 
-process.exit(1);
-shell.exec("git add .");
+
+// process.exit(1);
+// shell.exec("git add .");
