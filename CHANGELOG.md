@@ -1,3 +1,11 @@
+## commit 时间：2023-03-28 23:52:59
+
+### 文件：.husky/scripts/pre-commit.js
+
+#### 文件 hash：673331d..9efbec2 - `update`
+
+改动目的：03
+
 ## commit 时间：2023-03-28 23:52:16
 
 ### 文件：.husky/scripts/pre-commit.js
