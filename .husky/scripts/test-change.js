@@ -68,7 +68,7 @@ if (noExist) {
   const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
   fs.writeFileSync(
     changeLogPath,
-    prettier.format(`## commit 时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')} \n${currentLog}\n${oldLog}`, { parser: "markdown" })
+    prettier.format(`## commit 时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')} \n${currentLog}\n\n\n${oldLog}`, { parser: "markdown" })
   );
 
   shell.exec("git add .");
