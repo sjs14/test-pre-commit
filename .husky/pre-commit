@@ -1,9 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# yarn commitlint --edit "$1"
-
-# node prettier-changelog.js
-# echo $1
-
-node .husky/scripts/test-change.js $1
+node .husky/scripts/pre-commit.js $1

@@ -2,9 +2,18 @@ import fs from "fs";
 import path from "path";
 import ejs from "ejs";
 import { JSDOM } from "jsdom";
-import { html2md, md2html } from "./mdHtmlExchange.js";
-import { fileHashEjsTpl } from "./ejs.js";
+import { html2md, md2html } from "./md.js";
 
+// 文件hash字符串模板
+export const fileHashEjsTpl =
+  "文件hash：<%= index %> - <code><%= status %></code>";
+
+/**
+ * html字符串转模拟dom，可以使用dom的api进行操作，返回顶层对象
+ * @param {*} htmlOrPath html字符串或者文件路径
+ * @param {*} opt.type htmlOrPath类型，code为代码，默认为文件路径
+ * @returns
+ */
 export const getDocument = (htmlOrPath, opt = {}) => {
   if (opt.type !== "code") {
     htmlOrPath = fs.readFileSync(htmlOrPath, "utf8");
@@ -13,6 +22,11 @@ export const getDocument = (htmlOrPath, opt = {}) => {
   return dom.window.document;
 };
 
+/**
+ * 从log的markdown文件中提取文件index和文件改动目标
+ * @param {*} path log的markdown文件路径
+ * @returns
+ */
 export const getHashListFromMd = (path) => {
   if (!fs.existsSync(path)) return [];
   const code = fs.readFileSync(path, "utf8");
@@ -29,7 +43,12 @@ export const getHashListFromMd = (path) => {
   }, []);
 };
 
-export const generateNewCommitMd = (diffList, test = "commit msg 占位") => {
+/**
+ * 生成changeset.md的内容，保留已有changeset相同文件index的改动目标
+ * @param {*} diffList git diff提取的数据
+ * @returns
+ */
+export const generateNewCommitMd = (diffList) => {
   if (!diffList) return "";
   const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
   const existHashList = fs.existsSync(currentCommitLogPath)

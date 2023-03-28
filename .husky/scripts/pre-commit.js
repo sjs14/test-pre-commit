@@ -4,9 +4,10 @@ import path from "path";
 import ejs from "ejs";
 import dayjs from "dayjs";
 import prettier from "prettier";
+import chalk from "chalk";
 import { getDiff } from "./gitDiff.js";
 import { generateNewCommitMd, getHashListFromMd } from "./dom.js";
-import { fileHashEjsTpl } from "./ejs.js";
+import { fileHashEjsTpl } from "./dom.js";
 const changeLogPath = path.resolve(process.cwd(), "CHANGELOG.md");
 const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
 
@@ -15,18 +16,18 @@ const diffList = getDiff();
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
 // 先看看有没有改变CHANGELOG.md，强制删除则先注释
-// diffList.some((item) => {
-//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-//     console.log(`文件 ${changeLogPath} 不允许手动更改`);
-//     process.exit(1);
-//   }
-// });
+diffList.some((item) => {
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    console.log(chalk.bold.red(`文件 ${changeLogPath} 不允许手动更改！`));
+    process.exit(1);
+  }
+});
 
 const noExist = diffList.some((item) => {
   // 强制删除开启
-  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    return false;
-  }
+  // if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+  //   return false;
+  // }
 
   const newHashStr = ejs.render(fileHashEjsTpl, item);
 
@@ -46,12 +47,15 @@ const noExist = diffList.some((item) => {
   //   第一个不存在就返回
   return true;
 });
+
 if (noExist) {
   const mdStr = generateNewCommitMd(diffList);
   // TODO: 保留已有不变的goal
   fs.writeFileSync(currentCommitLogPath, mdStr);
   console.log(
-    `\n请在文件 ${currentCommitLogPath} 中，将文件对应的改动目的补充完整，再进行提交\n`
+    chalk.bold.yellowBright(
+      `\n请在文件 ${currentCommitLogPath} 中，\n将文件对应的改动目的补充完整，再执行提交。\n`
+    )
   );
   process.exit(1);
 } else {
@@ -59,11 +63,16 @@ if (noExist) {
     ? fs.readFileSync(changeLogPath, "utf8")
     : "";
   const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
-  console.log(`🚀  currentLog:`, currentLog)
-  
+  console.log(`🚀  currentLog:`, currentLog);
+
   fs.writeFileSync(
     changeLogPath,
-    prettier.format(`## commit 时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')}${currentLog}\n\n\n${oldLog}`, { parser: "markdown" })
+    prettier.format(
+      `## commit 时间：${dayjs().format(
+        "YYYY-MM-DD HH:mm:ss"
+      )}${currentLog}\n\n\n${oldLog}`,
+      { parser: "markdown" }
+    )
   );
 
   shell.exec("git add .");

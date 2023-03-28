@@ -1,6 +1,4 @@
 import shell from "shelljs";
-import fs from "fs";
-import crypto from "crypto";
 
 /**
  * 获取diff文件信息
@@ -11,28 +9,17 @@ export const getDiff = () => {
 
   const res = shell.exec(gitDiffComd);
 
-  const diffList = getFileDiffInfo(res.stdout);
+  const diffList = getFileDiffList(res.stdout);
 
   return diffList;
 };
 
 /**
- * 获取文件hash
- * @param {*} fileOrCode
- * @param {*} opt.type code表示fileOrCode为代码，其他表示文件路径
+ * 获取diff文件信息的数组
+ * @param {*} diffLog git diff --cached 的log
+ * @returns 
  */
-export const getFileHash = (fileOrCode, opt = {}) => {
-  if (opt.type !== "code") {
-    fileOrCode = fs.readFileSync(fileOrCode, "utf8");
-  }
-  const hash = crypto.createHash("md5");
-  hash.update(fileOrCode);
-  const md5 = hash.digest("hex");
-
-  return md5;
-};
-
-export const getFileDiffInfo = (diffLog) => {
+export const getFileDiffList = (diffLog) => {
   if (!diffLog) {
     return [];
   }
@@ -54,6 +41,11 @@ export const getFileDiffInfo = (diffLog) => {
   return list;
 };
 
+/**
+ * 根据index获取该文件的类型，index左边全0表示新增，右边全0表示删除，两边都有hash表示更新
+ * @param {*} index git diff 获取的index
+ * @returns 
+ */
 export const getIndexStatus = (index) => {
   if (!index) {
     return undefined;
