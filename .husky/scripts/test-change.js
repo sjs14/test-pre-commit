@@ -20,15 +20,20 @@ const diffList = getDiff();
 
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
-// 先看看有没有改变CHANGELOG.md
-diffList.some((item) => {
-  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    console.log(`文件 ${changeLogPath} 不允许手动更改`);
-    process.exit(1);
-  }
-});
+// 先看看有没有改变CHANGELOG.md，强制删除则先注释
+// diffList.some((item) => {
+//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+//     console.log(`文件 ${changeLogPath} 不允许手动更改`);
+//     process.exit(1);
+//   }
+// });
 
 const noExist = diffList.some((item) => {
+  // 强制删除开启
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    return false;
+  }
+
   const newHashStr = ejs.render(fileHashEjsTpl, item);
 
   const hasIndexNumber = Array.from(existHashList).findIndex(
@@ -66,5 +71,5 @@ if (noExist) {
   );
 
   shell.exec("git add .");
-  shell.rm(currentCommitLogPath)
+  shell.rm(currentCommitLogPath);
 }
