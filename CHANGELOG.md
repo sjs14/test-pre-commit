@@ -23,9 +23,9 @@ const a: string = "1";
 ```
 
 ```typescript
-const a: string = "1";
+const a: string = "2";
 ```
 
 ```typescript
-const a: string = "1";
+const a: string = "3";
 ```
