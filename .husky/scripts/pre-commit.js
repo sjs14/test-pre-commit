@@ -56,7 +56,7 @@ for (let i = 0; i < diffList.length; i++) {
 
 if (hasNotExist) {
   // 声场最新的changeset.md内容，保留文件index不变且已经填写的改动目的
-  const mdStr = generateNewCommitMd(diffList);
+  const mdStr = generateNewCommitMd(diffList,currentCommitLogPath);
   fs.writeFileSync(currentCommitLogPath, mdStr);
   // 提醒还有未填写改动目的的文件
   console.log(

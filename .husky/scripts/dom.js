@@ -48,9 +48,8 @@ export const getHashListFromMd = (path) => {
  * @param {*} diffList git diff提取的数据
  * @returns
  */
-export const generateNewCommitMd = (diffList) => {
+export const generateNewCommitMd = (diffList, currentCommitLogPath) => {
   if (!diffList) return "";
-  const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
   const existHashList = fs.existsSync(currentCommitLogPath)
     ? getHashListFromMd(currentCommitLogPath)
     : [];
