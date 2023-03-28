@@ -5,4 +5,4 @@
 
 # node prettier-changelog.js
 
-node .husky/scripts/test-change.js
+node .husky/scripts/test-change.js $1
