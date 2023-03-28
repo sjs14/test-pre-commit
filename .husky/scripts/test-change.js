@@ -2,6 +2,7 @@ import shell from "shelljs";
 import fs from "fs";
 import path from "path";
 import ejs from "ejs";
+import dayjs from "dayjs";
 import prettier from "prettier";
 import { getDiff } from "./gitDiff.js";
 import { generateNewCommitMd, getHashListFromMd } from "./dom.js";
@@ -67,7 +68,7 @@ if (noExist) {
   const currentLog = fs.readFileSync(currentCommitLogPath, "utf8");
   fs.writeFileSync(
     changeLogPath,
-    prettier.format(`${currentLog}\n${oldLog}`, { parser: "markdown" })
+    prettier.format(`## commit 时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')} \n${currentLog}\n${oldLog}`, { parser: "markdown" })
   );
 
   shell.exec("git add .");
