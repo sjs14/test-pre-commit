@@ -10,30 +10,23 @@ import { fileHashEjsTpl } from "./ejs.js";
 const changeLogPath = path.resolve(process.cwd(), "CHANGELOG.md");
 const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
 
-shell.exec(
-  `npx prettier --write --ignore-unknown ${path.resolve(
-    process.cwd(),
-    "CHANGELOG.md"
-  )}`
-);
-
 const diffList = getDiff();
 
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
 // 先看看有没有改变CHANGELOG.md，强制删除则先注释
-diffList.some((item) => {
-  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    console.log(`文件 ${changeLogPath} 不允许手动更改`);
-    process.exit(1);
-  }
-});
+// diffList.some((item) => {
+//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+//     console.log(`文件 ${changeLogPath} 不允许手动更改`);
+//     process.exit(1);
+//   }
+// });
 
 const noExist = diffList.some((item) => {
   // 强制删除开启
-  // if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-  //   return false;
-  // }
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    return false;
+  }
 
   const newHashStr = ejs.render(fileHashEjsTpl, item);
 
