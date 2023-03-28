@@ -17,12 +17,12 @@ const diffList = getDiff();
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
 // 先看看有没有改变CHANGELOG.md，强制删除则先注释
-// diffList.some((item) => {
-//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-//     console.log(chalk.bold.red(`文件 ${changeLogPath} 不允许手动更改！`));
-//     process.exit(1);
-//   }
-// });
+diffList.some((item) => {
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    console.log(chalk.bold.red(`文件 ${changeLogPath} 不允许手动更改！`));
+    process.exit(1);
+  }
+});
 
 // 判断是否存在diff文件没有没记录改动目的
 let hasNotExist = false;
@@ -30,9 +30,9 @@ const goalReg = /^改动目的：.+/;
 for (let i = 0; i < diffList.length; i++) {
   const item = diffList[i];
   // 强制删除CHANGELOG.md请开启
-  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    continue;
-  }
+  // if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+  //   continue;
+  // }
 
   // 获取文件hash文本
   const newHashStr = ejs.render(fileHashEjsTpl, item);
