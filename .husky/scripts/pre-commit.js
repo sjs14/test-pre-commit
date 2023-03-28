@@ -11,47 +11,54 @@ import { fileHashEjsTpl } from "./dom.js";
 const changeLogPath = path.resolve(process.cwd(), "CHANGELOG.md");
 const currentCommitLogPath = path.resolve(process.cwd(), "changeset.md");
 
+// diff log提取的数组
 const diffList = getDiff();
-
+// 从changeset.md获取现有的文件index和文件改动目的
 const existHashList = getHashListFromMd(currentCommitLogPath);
 
 // 先看看有没有改变CHANGELOG.md，强制删除则先注释
-// diffList.some((item) => {
-//   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-//     console.log(chalk.bold.red(`文件 ${changeLogPath} 不允许手动更改！`));
-//     process.exit(1);
-//   }
-// });
-
-const noExist = diffList.some((item) => {
-  // 强制删除开启
+diffList.some((item) => {
   if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
-    return false;
+    console.log(chalk.bold.red(`文件 ${changeLogPath} 不允许手动更改！`));
+    process.exit(1);
+  }
+});
+
+// 判断是否存在diff文件没有没记录改动目的
+let hasNotExist = false;
+const goalReg = /^改动目的：.+/;
+for (let i = 0; i < diffList.length; i++) {
+  const item = diffList[i];
+  // 强制删除CHANGELOG.md请开启
+  if (item.filePath.indexOf("CHANGELOG.md") >= 0) {
+    continue
   }
 
+  // 获取文件hash文本
   const newHashStr = ejs.render(fileHashEjsTpl, item);
 
-  const hasIndexNumber = Array.from(existHashList).findIndex(
+  // 判断diff在changeset.md中是否存在
+  const existIndex = Array.from(existHashList).findIndex(
     (existI) => existI.hash === newHashStr
   );
 
-  if (hasIndexNumber >= 0) {
-    const goal = existHashList[hasIndexNumber].goal.innerHTML.trim();
-    const goalReg = /^改动目的：.+/;
+  // 存在的话，改动目标是否已经填写
+  if (existIndex >= 0) {
+    const goal = existHashList[existIndex].goal.innerHTML.trim();
     if (goalReg.test(goal)) {
-      // 有的就跳过进入下一个
-      return false;
+      continue;
     }
   }
 
-  //   第一个不存在就返回
-  return true;
-});
+  hasNotExist = true;
+  break;
+}
 
-if (noExist) {
+if (hasNotExist) {
+  // 声场最新的changeset.md内容，保留文件index不变且已经填写的改动目的
   const mdStr = generateNewCommitMd(diffList);
-  // TODO: 保留已有不变的goal
   fs.writeFileSync(currentCommitLogPath, mdStr);
+  // 提醒还有未填写改动目的的文件
   console.log(
     chalk.bold.yellowBright(
       `\n请在文件 ${currentCommitLogPath} 中，\n将文件对应的改动目的补充完整，再执行提交。\n`
@@ -59,6 +66,7 @@ if (noExist) {
   );
   process.exit(1);
 } else {
+  // 组装最新的CHANGELOG.md
   const oldLog = fs.existsSync(changeLogPath)
     ? fs.readFileSync(changeLogPath, "utf8")
     : "";
